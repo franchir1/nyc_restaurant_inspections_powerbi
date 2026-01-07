@@ -179,16 +179,12 @@ let
     RemoveDuplicates =
         Table.Distinct(RemoveNulls),
 
+    // date interpretata in cultura US (MM/dd/yyyy)
     AddDate =
         Table.AddColumn(
             RemoveDuplicates,
             "date",
-            each
-                Date.FromText(
-                    Text.Start(Text.From([date_key]), 4) & "-"
-                    & Text.Middle(Text.From([date_key]), 4, 2) & "-"
-                    & Text.End(Text.From([date_key]), 2)
-                ),
+            each Date.FromText(Text.From([date_key]), "en-US"),
             type date
         ),
 
@@ -200,9 +196,17 @@ let
             Int64.Type
         ),
 
-    AddMonth =
+    AddQuarter =
         Table.AddColumn(
             AddYear,
+            "quarter",
+            each "Q" & Text.From(Date.QuarterOfYear([date])),
+            type text
+        ),
+
+    AddMonth =
+        Table.AddColumn(
+            AddQuarter,
             "month",
             each Date.Month([date]),
             Int64.Type
@@ -212,21 +216,13 @@ let
         Table.AddColumn(
             AddMonth,
             "month_name",
-            each Date.MonthName([date]),
-            type text
-        ),
-
-    AddQuarter =
-        Table.AddColumn(
-            AddMonthName,
-            "quarter",
-            each "Q" & Text.From(Date.QuarterOfYear([date])),
+            each Date.MonthName([date], "en-US"),
             type text
         ),
 
     AddDay =
         Table.AddColumn(
-            AddQuarter,
+            AddMonthName,
             "day",
             each Date.Day([date]),
             Int64.Type
@@ -236,7 +232,7 @@ let
         Table.AddColumn(
             AddDay,
             "weekday",
-            each Date.DayOfWeek([date], Day.Monday) + 1,
+            each Date.DayOfWeek([date], Day.Sunday) + 1,
             Int64.Type
         ),
 
@@ -244,7 +240,7 @@ let
         Table.AddColumn(
             AddWeekday,
             "weekday_name",
-            each Date.DayOfWeekName([date]),
+            each Date.DayOfWeekName([date], "en-US"),
             type text
         ),
 
