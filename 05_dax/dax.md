@@ -12,8 +12,8 @@ Counts the total number of distinct inspections in the current filter context.
 The count is computed at the true inspection level, reconstructed as the combination of restaurant and date.
 
 ```DAX
-BASE - Inspection Count =
-DISTINCTCOUNT ( fact_table[inspection_key] )
+BASE - Inspection Count = 
+DISTINCTCOUNT ( fact_inspection[inspection_business_key] )
 ````
 
 ### BASE - Critical Inspection Count
@@ -22,10 +22,10 @@ Counts inspections that include at least one critical violation.
 An inspection is considered critical if at least one associated violation is marked as critical.
 
 ```DAX
-BASE - Critical Inspection Count =
-CALCULATE (
-    DISTINCTCOUNT ( fact_table[inspection_key] ),
-    fact_table[critical_flag] = "Critical"
+BASE - Critical Inspection Count = 
+CALCULATE(
+    [BASE - Inspection Count],
+    fact_inspection[critical_flag] = "Critical"
 )
 ```
 
@@ -34,11 +34,9 @@ CALCULATE (
 Calculates the percentage of critical inspections over total inspections.
 
 ```DAX
-BASE - Critical Inspection Rate =
-DIVIDE (
-    [BASE - Critical Inspection Count],
-    [BASE - Inspection Count]
-)
+BASE - Critical Inspection Rate = 
+DIVIDE ( [BASE - Critical Inspection Count], [BASE - Inspection Count] )
+
 ```
 
 ### BASE - Violation Count
@@ -47,10 +45,10 @@ Counts the total number of recorded violations.
 This measure operates at fact table row level and includes only rows with a populated violation.
 
 ```DAX
-BASE - Violation Count =
-CALCULATE (
-    COUNTROWS ( fact_table ),
-    NOT ISBLANK ( fact_table[violation_key] )
+BASE - Violation Count = 
+CALCULATE(
+    COUNTROWS(fact_inspection),
+    NOT ISBLANK(fact_inspection[violation_key])
 )
 ```
 
@@ -62,8 +60,11 @@ Calculates the average inspection score in the current filter context.
 Null values are automatically ignored by the aggregation function.
 
 ```DAX
-SCORE - Average Inspection Score =
-AVERAGE ( fact_table[score] )
+SCORE - Average Inspection Score = 
+AVERAGEX(
+    VALUES(fact_inspection[inspection_business_key]),
+    CALCULATE(MAX(fact_inspection[score_assigned]))
+)
 ```
 
 ## TIME Measures (3-year rolling windows)
@@ -74,15 +75,19 @@ Counts the total number of inspections over a rolling aggregated 3-year window
 relative to the selected year.
 
 ```DAX
-TIME - Total Inspection (3Y Rolling) =
+TIME - Inspection Count (3Y Rolling) = 
+VAR curr_year = MAX ( date_dim[year] )
+RETURN
 CALCULATE (
     [BASE - Inspection Count],
     FILTER (
         ALL ( date_dim[year] ),
-        date_dim[year] >= MAX ( date_dim[year] ) - 2
-            && date_dim[year] <= MAX ( date_dim[year] )
+        date_dim[year] >= curr_year - 2
+            && date_dim[year] <= curr_year
     )
 )
+
+
 ```
 
 ### TIME - Inspection Score (3Y Rolling)
@@ -90,7 +95,7 @@ CALCULATE (
 Calculates the average inspection score over a rolling aggregated 3-year window.
 
 ```DAX
-TIME - Inspection Score (3Y Rolling) =
+TIME - Inspection Score (3Y Rolling) = 
 VAR curr_year = MAX ( date_dim[year] )
 RETURN
 CALCULATE (
@@ -101,6 +106,7 @@ CALCULATE (
             && date_dim[year] <= curr_year
     )
 )
+
 ```
 
 ### TIME - Critical Inspection Rate (3Y Rolling)
@@ -110,9 +116,10 @@ The rate is defined as the ratio between total critical inspections
 and total inspections in the same period.
 
 ```DAX
-TIME - Critical Inspection Rate (3Y Rolling) =
+TIME - Critical Inspection Rate (3Y Rolling) = 
 VAR Inspections_3Y =
     CALCULATE (
+        // Inspection count in the last 3 years
         [BASE - Inspection Count],
         FILTER (
             ALL ( date_dim[year] ),
@@ -123,6 +130,7 @@ VAR Inspections_3Y =
 
 VAR Critical_Inspections_3Y =
     CALCULATE (
+        // Inspections with at least one critical violation in the last 3 years
         [BASE - Critical Inspection Count],
         FILTER (
             ALL ( date_dim[year] ),
@@ -132,7 +140,19 @@ VAR Critical_Inspections_3Y =
     )
 
 RETURN
-DIVIDE ( Critical_Inspections_3Y, Inspections_3Y )
+// Critical inspection rate (3Y rolling)
+DIVIDE ( Critical_Inspections_3Y, Inspections_3Y, BLANK() )
+```
+
+
+## Parameter function
+
+```DAX
+PARAM - TIME - Trends = {
+    ("Inspection Score (3Y Rolling)", NAMEOF('Misure'[TIME - Inspection Score (3Y Rolling)]), 0),
+    ("Critical Inspection Rate (3Y Rolling)", NAMEOF('Misure'[TIME - Critical Inspection Rate (3Y Rolling)]), 1),
+    ("Inspection Count (3Y Rolling)", NAMEOF('Misure'[TIME - Inspection Count (3Y Rolling)]), 2)
+}
 ```
 
 ## Methodological notes
