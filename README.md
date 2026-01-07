@@ -1,97 +1,117 @@
-# NYC Restaurant Inspections – Analytical Overview
+# NYC Restaurant Inspections – Analytical Case Study
 
-This project analyzes health inspection data released by the
-New York City Department of Health and Mental Hygiene (DOHMH).
+## Project overview
 
-The objective is to provide a **clear, stable, and decision-oriented view**
-of how restaurant inspections behave over time, across geographic areas,
-and across cuisine types.
+This project analyzes health inspection data released by the **New York City Department of Health and Mental Hygiene (DOHMH)** with the goal of producing a **stable, decision-oriented analytical model** suitable for KPI reporting and trend analysis.
 
----
-
-## Why this project
-
-Health inspection data is inherently complex:
-
-- a single inspection may include multiple violations
-- inspection scores are not cumulative
-- raw data is granular and noisy
-
-This project focuses on **analytical correctness**:
-each KPI is designed to answer a precise question
-without distortions caused by duplicated scores or mixed granularities.
+Health inspection data is structurally complex: a single inspection can generate multiple violations, inspection scores are not additive, and raw data granularity can easily lead to analytical distortions. This project focuses explicitly on **analytical correctness** rather than surface-level aggregation.
 
 ---
 
-## Analytical questions
+## Analytical objectives
 
-The analysis addresses questions such as:
+The analysis is designed to answer the following questions:
 
-- How stable is the average inspection quality over time?
-- How widespread is critical health risk?
-- Are there persistent differences across boroughs?
-- Do some cuisine types show systematically worse outcomes?
-- Is the system improving, deteriorating, or remaining stable?
+* How stable is inspection quality over time?
+* How widespread are critical health risks across the city?
+* Are there persistent differences between boroughs?
+* Do some cuisine types systematically show worse outcomes?
+* Is the inspection system improving, deteriorating, or remaining stable?
+
+Each question is mapped to a specific KPI or metric, avoiding ambiguous or mixed-granularity interpretations.
 
 ---
 
 ## Methodological approach
 
-- raw data is cleaned and standardized using Power Query
-- inspection–violation granularity is preserved
-- inspection identity is reconstructed analytically
-- all aggregations are handled in DAX
-- time trends use rolling windows to reduce volatility
+The project follows a clear separation of responsibilities:
 
-The model is designed to be **simple, auditable, and robust**.
+* **ETL (Power Query)**
+
+  * Cleans and standardizes raw data
+  * Preserves inspection–violation granularity
+  * Performs no aggregations
+
+* **Data model (Power BI)**
+
+  * Simplified star schema
+  * One fact table at inspection–violation level
+  * Dedicated dimensions for time, area, cuisine, restaurant, and violation
+
+* **Semantic layer (DAX)**
+
+  * Reconstructs inspection identity analytically
+  * Enforces correct aggregation logic
+  * Implements rolling-window KPIs
+
+All business logic is intentionally handled in DAX to keep the ETL layer transparent and auditable.
 
 ---
 
 ## Dashboard structure
 
-The dashboard is divided into two panels:
+The Power BI dashboard is divided into two complementary analytical panels.
 
-### Overview
+### 1. Overview
 
-Provides a snapshot of the system through:
+Provides a snapshot of the inspection system through:
 
-- total inspections
-- average inspection score
-- critical inspection rate
-- cuisine rankings
-- most recurring violation codes
+* Total number of inspections
+* Average inspection score
+* Critical inspection rate
+* Best and worst cuisine rankings
+* Most recurring violation codes
 
-### Time analysis
+This panel supports fast comparative analysis across boroughs and cuisine types.
 
-Focuses on medium-term dynamics using 3-year rolling metrics:
+### 2. Time analysis
 
-- inspection volume
-- average inspection score
-- critical inspection rate
+Focuses on medium-term dynamics using **3-year rolling metrics**:
 
-This separation allows both **instant assessment** and **trend interpretation**.
+* Inspection count (3Y rolling)
+* Average inspection score (3Y rolling)
+* Critical inspection rate (3Y rolling)
 
----
-
-## Key takeaways
-
-- Inspection quality is broadly stable, with persistent territorial differences
-- Critical violations are widespread but show gradual improvement
-- Some cuisine categories consistently exhibit higher operational risk
-- Increased inspection activity after 2021 aligns with post-pandemic recovery
+Rolling windows are used to reduce annual volatility while preserving sensitivity to structural change.
 
 ---
 
-## Tools and skills
+## Key findings
 
-- Power Query for ETL
-- Power BI and DAX for modeling and analytics
-- star schema data modeling
-- rolling window KPI design
-- analytical documentation for portfolio presentation
+* Inspection quality is broadly stable over time, with persistent territorial differences
+* Critical violations are widespread but show gradual improvement in recent years
+* Some cuisine categories consistently exhibit higher operational risk
+* Increased inspection activity after 2021 aligns with post-pandemic recovery patterns
+
+These findings are descriptive and exploratory: no causal assumptions are made.
 
 ---
 
-This project is intended as a **portfolio case study**
-and demonstrates an end-to-end analytical workflow
-from raw data to decision-ready insights.
+## Design principles
+
+* Inspection scores are aggregated only at the true inspection level
+* Violation-based metrics operate at row level
+* No score duplication bias is allowed in KPIs
+* Time trends use aggregated rolling windows, not averages of averages
+* The model prioritizes clarity, stability, and auditability
+
+---
+
+## Tools and skills demonstrated
+
+* Power Query (ETL design)
+* Power BI data modeling
+* Star schema modeling
+* Advanced DAX (granularity control, rolling windows)
+* Analytical documentation for portfolio presentation
+
+---
+
+## Documentation structure
+
+* `etl_power_query.md` – ETL logic and transformation rules
+* `data_model.md` – Conceptual and physical data model
+* `dax_measures.md` – Final DAX measures and methodology
+* `dashboard.md` – Dashboard structure and KPI interpretation
+
+This project is intended as a **portfolio case study**, demonstrating an end-to-end analytical workflow from raw data to decision-ready insights.
