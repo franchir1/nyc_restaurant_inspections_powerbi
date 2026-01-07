@@ -1,34 +1,56 @@
 # Dashboard – NYC Restaurant Inspection Overview
 
-This dashboard provides a structured analytical view of New York City restaurant health inspections, with the goal of assessing inspection volume, average quality, operational risk, and trends over time.
+This dashboard provides a structured, decision-oriented view of New York City restaurant health inspections.
+Its purpose is to analyze inspection activity, average quality, operational risk, and medium-term trends.
 
-The analysis is built on a model with inspection–violation granularity; score-based aggregations are calculated at the true inspection level, reconstructed as the combination of restaurant and inspection date, avoiding duplication caused by multiple violations within a single inspection.
+The analysis is built on a data model with **inspection–violation granularity**.
+Score-based KPIs are aggregated at the **true inspection level**, reconstructed analytically to avoid duplication caused by multiple violations recorded during the same inspection.
 
-## Dashboard structure
+---
 
-The dashboard is organized into two main panels, each serving a distinct analytical role.
-
-## Dashboard objective
+## Dashboard objectives
 
 The dashboard is designed to:
 
-- identify structural patterns
+- identify structural patterns in inspection outcomes
 - compare geographic areas and cuisine types
+- assess the prevalence of critical health risk
 - observe improvement or deterioration trends over time
 - support exploratory analysis through filters and contextual tooltips
 
-## Main KPIs
+---
+
+## Dashboard structure
+
+The dashboard is organized into two complementary analytical panels:
+
+1. **Overview** – cross-sectional analysis of inspection quality and risk  
+2. **Time analysis** – medium-term trends based on rolling metrics  
+
+Each panel serves a distinct analytical role and should be interpreted independently.
+
+---
+
+## Overview panel
+
+<figure align="center">
+  <img src="dashboard_overview.png" alt="Dashboard overview" width="800">
+  <figcaption>Dashboard overview</figcaption>
+</figure>
+
+### Main KPIs
 
 KPIs are calculated within the active filter context (year and area):
 
-- Inspection Count: total number of distinct inspections
-- Average Inspection Score: average inspection score
-- Critical Inspection Rate: percentage of inspections with at least one critical violation, used as an operational risk indicator
+- **Inspection Count**  
+  Total number of distinct inspections.
 
-<p align="center">
-  <img src="dashboard_overview.png" alt="Main dashboard" width="800">
-</p>
-<p align="center"><em>Main dashboard</em></p>
+- **Average Inspection Score**  
+  Mean inspection score, aggregated at inspection level.
+
+- **Critical Inspection Rate**  
+  Percentage of inspections with at least one critical violation.
+  This metric is used as an **operational risk indicator**.
 
 ### Global filters
 
@@ -37,100 +59,127 @@ KPIs are calculated within the active filter context (year and area):
 
 All visuals react dynamically to the applied selections.
 
+---
+
 ### KPI interpretation
 
 **Average Inspection Score**
 
-Average inspection scores are broadly stable over the analyzed period, with controlled values and consistent territorial differences.
-The score represents average inspection quality, but does not measure the overall severity of violations.
+Average inspection scores are broadly stable over the analyzed period, with consistent territorial differences.
+The score reflects average inspection quality but does not measure the cumulative severity of violations.
 
 **Critical Inspection Rate**
 
-The rate of inspections with at least one critical violation is high, but shows a gradual reduction in recent years.
-This metric measures the frequency of critical health risk, not its intensity.
+The share of inspections with at least one critical violation is structurally high, but shows a gradual reduction in recent years.
+This metric captures the **frequency of critical risk**, not its intensity.
 
 **Inspection Count**
 
-The number of inspections varies by geographic area and is proportional to population size and the number of venues.
-The increase observed after 2021 is consistent with post-pandemic recovery and improved reporting processes.
+Inspection volume varies across geographic areas and is broadly proportional to population size and number of establishments.
+The increase observed after 2021 is consistent with post-pandemic recovery and improved inspection activity.
+
+---
 
 ### Cuisine rankings
 
 The overview panel includes two rankings:
 
-- Best Cuisine (Top 5): cuisine types with the lowest average score
-- Worst Cuisine (Bottom 5): cuisine types with the highest average score
+- **Best cuisines (Top 5)** – lowest average inspection score
+- **Worst cuisines (Bottom 5)** – highest average inspection score
 
-A dedicated tooltip provides additional context for each cuisine type, including average score and critical inspection rate.
+A dedicated tooltip provides additional context for each cuisine type, including:
+- average inspection score
+- critical inspection rate
 
 **Interpretation**
 
-The rankings show persistent differences across cuisine types over the medium term.
-Higher scores suggest greater exposure to operational issues, without implying direct causality tied to cuisine type.
+The rankings highlight persistent differences across cuisine types over the medium term.
+Higher average scores indicate greater exposure to operational issues, without implying direct causality.
+
+---
 
 ### Most recurring violation codes
 
-The “Most Recurring Violation Codes” chart shows the most frequent violation codes in the dataset.
+This chart displays the most frequent violation codes in the dataset.
 
-No one-to-one correlation is assumed between an individual violation code and the score.
-The score is determined by the overall set of violations detected during the same inspection.
+No one-to-one relationship is assumed between individual violation codes and inspection scores.
+The score is determined by the **overall combination of violations** detected during the same inspection.
 
-A dedicated tooltip provides code, description, and count.
+A dedicated tooltip provides:
+- violation code
+- description
+- total count
 
 **Interpretation**
 
-Some violation codes are systematically more frequent, indicating recurring hygiene issues of a structural nature.
-Frequency is not directly mappable to the score, which depends on the full combination of violations detected.
+Some violation codes recur systematically, indicating structural hygiene issues.
+Frequency alone is not directly mappable to inspection score outcomes.
 
-## 2. Time analysis
+---
 
-The second panel focuses on how indicators evolve over time.
+## Time analysis panel
+
+<figure align="center">
+  <img src="dashboard_trends.png" alt="Time trends" width="800">
+  <figcaption>Time trends</figcaption>
+</figure>
+
+The second panel focuses on how key indicators evolve over time.
 
 ### Selectable metrics
 
-A field parameter allows analyzing three metrics through the same visual:
+A field parameter allows analyzing three metrics using the same visual:
 
-- Inspection Score (3Y Rolling)
-- Critical Inspection Rate (3Y Rolling)
-- Inspection Count (3Y Rolling)
+- **Inspection Score (3Y Rolling)**
+- **Critical Inspection Rate (3Y Rolling)**
+- **Inspection Count (3Y Rolling)**
 
-Each metric should be interpreted independently.
-The Y-axis adapts automatically to the selected measure context.
+Each metric must be interpreted independently.
+The Y-axis adapts automatically to the selected measure.
 
-<p align="center">
-  <img src="dashboard_trends.png" alt="Time analysis" width="800">
-</p>
-<p align="center"><em>Time analysis</em></p>
+---
 
-### 3-year rolling window
+### 3-year rolling window rationale
 
-All time metrics use an aggregated 3-year rolling window, chosen to reduce annual volatility while remaining responsive to change.
+All time-based metrics use an **aggregated 3-year rolling window**.
 
-For the Critical Inspection Rate, the metric can remain more volatile because it is a ratio between counts.
-To preserve interpretability, longer windows or cumulative baselines are not used.
+This choice:
+- reduces annual volatility
+- preserves sensitivity to structural changes
+- avoids distortions caused by short-term noise
+
+For the Critical Inspection Rate, some volatility remains unavoidable because the metric is a ratio between counts.
+Longer windows or cumulative baselines are intentionally avoided to preserve interpretability.
+
+---
 
 ### Trend interpretation
 
 **Average Inspection Score (3Y Rolling)**
 
-The rolling score trend shows stable, controlled dynamics.
-The rolling window reduces annual volatility without hiding potential structural changes.
+The rolling score shows stable, controlled dynamics.
+The rolling window smooths annual fluctuations without hiding structural changes.
 
 **Critical Inspection Rate (3Y Rolling)**
 
-The critical inspection rate shows a peak around 2021–2022 followed by a slow reduction.
-Persistently high values suggest widespread risk with gradual improvement signals.
+The critical inspection rate peaks around 2021–2022 and then gradually declines.
+Persistently high values indicate widespread risk, with recent improvement signals.
 
 **Inspection Count (3Y Rolling)**
 
-Inspection counts show progressive growth in recent years.
-This dynamic is consistent with increased inspection activity rather than random variation.
+Inspection volume shows progressive growth in recent years.
+This trend is consistent with increased inspection activity rather than random variation.
+
+---
 
 ## Key methodological choices
 
-- scores are not cumulative over time; each inspection has an independent score
-- a single inspection can include multiple violations, but only one score
-- score aggregations are performed at the true inspection level (restaurant + date)
-- the risk KPI is based on critical inspections, defined as inspections with at least one critical violation
+- inspection scores are not cumulative over time
+- a single inspection may include multiple violations but only one score
+- score-based KPIs aggregate at true inspection level (restaurant + date)
+- risk is defined as inspections with at least one critical violation
+- all aggregation logic is enforced in DAX, not in ETL
+
+---
 
 *Back to the [README](/README.md)*

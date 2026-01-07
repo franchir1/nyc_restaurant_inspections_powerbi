@@ -115,6 +115,11 @@ All relationships follow the same pattern:
 * single-direction
 * from dimensions to the fact table
 
+<figure align="center">
+  <img src="star_scheme_PBI.png" alt="Data model layout" width="700">
+  <figcaption>Data model layout</figcaption>
+</figure>
+
 No bidirectional relationships or bridge tables are used, in order to:
 
 * prevent filter ambiguity
@@ -148,9 +153,6 @@ This identifier is an **implementation detail** and is intentionally excluded fr
 
 ---
 
-<figure align="center">
-  <img src="star_scheme_PBI.png" alt="Star schema of the data model" width="700">
-  <figcaption>Star schema of the data model</figcaption>
-</figure>
+
 
 *Back to the [README](/README.md)*

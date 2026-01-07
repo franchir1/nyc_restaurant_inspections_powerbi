@@ -179,9 +179,4 @@ DIVIDE ( Critical_Inspections_3Y, Inspections_3Y )
 
 ---
 
-<figure align="center">
-  <img src="star_scheme_PBI.png" alt="Star schema of the data model" width="700">
-  <figcaption>Data model layout</figcaption>
-</figure>
-
 *Back to the [README](/README.md)*
