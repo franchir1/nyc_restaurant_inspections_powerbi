@@ -189,11 +189,26 @@ Power BI focuses on **exploration, storytelling, and insight communication**.
 
 ---
 
-## Documentation
+## Further Documentation & Deep Dives
 
-* SQL analytical model → *SQL project repository*
-* ETL & assumptions → `etl.md`
-* Dimensional model → `data_model.md`
-* Power BI report → `.pbix` file
+Supporting documentation and model components:
 
----
+- **Raw source data (CSV)**  
+  [`01_raw_data/`](01_raw_data/)
+
+- **Power Query ETL documentation**  
+  [`03_power_query/power_query.md`](03_power_query/power_query.md)
+
+- **Analytical data model documentation**  
+  [`04_data_model/data_model.md`](04_data_model/data_model.md)
+
+- **DAX measures documentation**  
+  [`05_dax/dax.md`](05_dax/dax.md)
+
+- **Dashboard explanation**  
+  [`06_dashboard/dashboard.md`](06_dashboard/dashboard.md)
+
+For the underlying analytical logic and SQL implementation,
+see the **SQL companion project**:  
+[`nyc_restaurant_inspections_sql`](../nyc_restaurant_inspections_sql)
+
