@@ -159,3 +159,5 @@ This separation ensures:
 - consistency between SQL and Power BI projects
 - easier validation of metrics
 - clear ownership of analytical logic
+
+*Back to the [README](README.md)*
