@@ -1,6 +1,4 @@
-**NYC Health Inspections – Analytical Dashboard (Power BI)**
-
----
+# NYC Health Inspections – Analytical Dashboard (Power BI)
 
 ## Project Overview
 
@@ -153,6 +151,19 @@ The Power BI report is organized into analytical sections:
 
 ---
 
+## Key Findings (High-level)
+
+The analysis highlights the following system-level patterns:
+
+- Inspection coverage is broadly proportional across NYC areas.
+- Structural differences exist in inspection outcomes between boroughs.
+- Inspection scores show stable medium-term dynamics.
+- Critical inspection risk is widespread but shows signs of decline in recent years.
+
+All findings are derived from aggregated and normalized metrics and
+should be interpreted at system level rather than at individual establishment level.
+
+
 ## Tooling & Technologies
 
 * **BI Tool:** Power BI
@@ -184,14 +195,5 @@ Power BI focuses on **exploration, storytelling, and insight communication**.
 * ETL & assumptions → `etl.md`
 * Dimensional model → `data_model.md`
 * Power BI report → `.pbix` file
-
----
-
-## Project Status
-
-* Data model finalized
-* Metrics validated against SQL queries
-* Dashboard aligned with analytical assumptions
-* Ready for portfolio and interviews
 
 ---
