@@ -1,56 +1,74 @@
 # Power Query – ETL Process
 
-This document describes the ETL process implemented in **Power Query** to transform the original
-DOHMH NYC Restaurant Inspection dataset into a structure suitable for analytical modeling in Power BI.
+This document describes the ETL process implemented in **Power Query**
+to transform the original NYC DOHMH Restaurant Inspection dataset into a
+clean, row-level dataset suitable for analytical modeling in Power BI.
 
-The ETL layer is intentionally **non-aggregating**: all business logic related to inspections,
-scores, and risk indicators is delegated to the semantic layer (DAX).
+The Power Query layer is intentionally **non-aggregating** and
+**non-analytical**:
+all inspection reconstruction, aggregation logic, and KPI definitions
+are handled downstream in the dimensional model and DAX measures.
 
 ---
 
 ## 1. Data source
 
-The dataset is imported from a CSV file using:
+The dataset is imported from a raw CSV file provided by the
+NYC Department of Health (DOHMH).
 
-- delimiter: `;`
+Import settings:
+- delimiter: `,`
 - encoding: UTF-8
-- explicit schema definition
+- explicit schema definition via `TransformColumnTypes`
 
-An explicit schema is used to avoid implicit type inference and ensure deterministic transformations.
+An explicit schema is applied to prevent implicit type inference
+and ensure deterministic transformations.
 
 ---
 
 ## 2. Column selection
 
-Only columns required for analytical purposes are retained:
+Only columns required for analytical modeling are retained:
 
 - CAMIS
+- DBA
 - BORO
 - CUISINE DESCRIPTION
 - INSPECTION DATE
+- ACTION
 - VIOLATION CODE
 - VIOLATION DESCRIPTION
 - CRITICAL FLAG
 - SCORE
 
-This reduces model complexity and improves refresh performance.
+This reduces model complexity and improves refresh performance,
+while preserving the original inspection × violation grain.
 
 ---
 
-## 3. Column renaming
+## 3. Column renaming (canonical naming)
 
-Columns are renamed early to enforce semantic consistency across the model:
+Columns are renamed early in the process to enforce semantic
+consistency across SQL and Power BI projects.
 
-| Original name | Renamed column |
-|--------------|----------------|
-| CAMIS | restaurant_id |
+| Original name | Canonical column |
+|--------------|------------------|
+| CAMIS | camis_code |
+| DBA | establishment_name |
 | BORO | area_name |
-| CUISINE DESCRIPTION | cuisine_desc |
+| CUISINE DESCRIPTION | cuisine_description |
 | INSPECTION DATE | inspection_date |
+| ACTION | action_taken |
 | VIOLATION CODE | violation_code |
-| VIOLATION DESCRIPTION | violation_desc |
+| VIOLATION DESCRIPTION | violation_description |
 | CRITICAL FLAG | critical_flag |
 | SCORE | score_assigned |
+
+Canonical naming guarantees alignment with:
+- `clean_data_table`
+- dimension tables
+- fact tables
+- DAX measures
 
 ---
 
@@ -58,70 +76,86 @@ Columns are renamed early to enforce semantic consistency across the model:
 
 Explicit data types are assigned:
 
-- restaurant_id → integer
-- inspection_date → date
-- score_assigned → integer
+- `camis_code` → text  
+- `inspection_date` → date  
+- `score_assigned` → integer  
 
-Explicit typing prevents silent conversion issues and aggregation anomalies.
+All other attributes are treated as text and normalized accordingly.
+
+Explicit typing avoids silent conversion issues
+and ensures correct filtering and aggregation behavior in Power BI.
 
 ---
 
-## 5. Date key creation
+## 5. Invalid value handling
 
-A numeric date key `date_key` is created from `inspection_date`
-using the format `YYYYMMDD`.
+The following invalid or placeholder values are normalized to `null`:
 
-Invalid or placeholder dates (e.g. `1900-01-01`) are converted to `null`
-as they do not represent valid inspection events.
+- empty strings across all textual fields
+- `"0"` used as a placeholder for `area_name`
+- fake inspection date `"01/01/1900"`
 
-The `date_key` is the sole link between the fact table and the time dimension.
+Rows with null `inspection_date` are **retained** in the staging dataset
+but are excluded from downstream fact tables due to the lack of a valid
+inspection grain.
 
 ---
 
 ## 6. Text normalization
 
-The following normalization steps are applied:
+Textual attributes are standardized to ensure stable joins and filtering:
 
-- empty strings converted to `null`
-- `Text.Trim` applied to all textual fields
+- `Text.Trim` applied to all text columns
+- `Text.Upper` applied to:
+  - `area_name`
+  - `critical_flag`
+- `Text.Proper` applied to:
+  - `establishment_name`
+  - `cuisine_description`
 
-This ensures consistency in joins, filtering, and deduplication logic.
-
----
-
-## 7. Date dimension generation
-
-From the distinct set of valid `date_key` values, a **date dimension** is generated.
-
-The dimension includes:
-
-- date_key
-- full_date
-- year
-- quarter
-- month_number
-- month_name
-
-This structure supports both chronological ordering and time-based aggregations,
-including rolling window analysis.
+No semantic transformations are applied at this stage.
 
 ---
 
-## 8. Column removal and ordering
+## 7. Grain preservation
 
-After generating `date_key`:
+The Power Query output preserves the **original source grain**:
 
-- the original `inspection_date` column is removed from the fact table
-- columns are reordered to improve readability and logical grouping
+**1 row = 1 violation recorded during an inspection**
+
+Key implications:
+- a single inspection may appear in multiple rows
+- inspection-level uniqueness is not enforced
+- no deduplication of inspection records is performed
+- no inspection reconstruction logic is applied
+
+This design choice ensures maximum transparency and auditability.
+
+---
+
+## 8. Date handling (important)
+
+Power Query **does not generate a numeric date key**.
+
+- `inspection_date` is preserved as a DATE field
+- date surrogate keys are generated downstream (SQL or model layer)
+- time intelligence logic is handled via the date dimension
+
+This avoids duplication of date logic across tools and keeps
+Power Query responsibilities minimal.
 
 ---
 
 ## Methodological notes
 
-- no rows are excluded during ETL
-- inspection–violation granularity is preserved
-- a single inspection may appear in multiple rows due to multiple violations
-- no attempt is made in ETL to deduplicate inspections
-- inspection reconstruction and aggregation logic is handled exclusively in DAX
+- No rows are aggregated or collapsed in Power Query
+- No KPIs or analytical features are computed
+- No inspection-level assumptions are introduced
+- Inspection reconstruction and aggregation logic is handled
+  exclusively in the dimensional model and DAX measures
+- Power Query acts strictly as a **clean staging layer**
 
-This approach keeps the ETL layer transparent, stable, and easily auditable.
+This separation ensures:
+- consistency between SQL and Power BI projects
+- easier validation of metrics
+- clear ownership of analytical logic

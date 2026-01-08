@@ -1,117 +1,197 @@
-# NYC Restaurant Inspections – Analytical Case Study
-
-## Project overview
-
-This project analyzes health inspection data released by the **New York City Department of Health and Mental Hygiene (DOHMH)** with the goal of producing a **stable, decision-oriented analytical model** suitable for KPI reporting and trend analysis.
-
-Health inspection data is structurally complex: a single inspection can generate multiple violations, inspection scores are not additive, and raw data granularity can easily lead to analytical distortions. This project focuses explicitly on **analytical correctness** rather than surface-level aggregation.
+**NYC Health Inspections – Analytical Dashboard (Power BI)**
 
 ---
 
-## Analytical objectives
+## Project Overview
 
-The analysis is designed to answer the following questions:
+This project presents an **analytical Power BI dashboard** built on top of the
+**NYC Department of Health (DOHMH) restaurant inspection dataset**.
 
-* How stable is inspection quality over time?
-* How widespread are critical health risks across the city?
-* Are there persistent differences between boroughs?
-* Do some cuisine types systematically show worse outcomes?
-* Is the inspection system improving, deteriorating, or remaining stable?
+It shares the **same dataset, assumptions, and analytical logic** of the SQL-based
+analytical project, and focuses on **visual exploration of system-level patterns**
+rather than isolated inspection events.
 
-Each question is mapped to a specific KPI or metric, avoiding ambiguous or mixed-granularity interpretations.
-
----
-
-## Methodological approach
-
-The project follows a clear separation of responsibilities:
-
-* **ETL (Power Query)**
-
-  * Cleans and standardizes raw data
-  * Preserves inspection–violation granularity
-  * Performs no aggregations
-
-* **Data model (Power BI)**
-
-  * Simplified star schema
-  * One fact table at inspection–violation level
-  * Dedicated dimensions for time, area, cuisine, restaurant, and violation
-
-* **Semantic layer (DAX)**
-
-  * Reconstructs inspection identity analytically
-  * Enforces correct aggregation logic
-  * Implements rolling-window KPIs
-
-All business logic is intentionally handled in DAX to keep the ETL layer transparent and auditable.
+The goal is to translate a **grain-aware dimensional model** into an
+**interactive BI experience**.
 
 ---
 
-## Dashboard structure
+## Analytical Focus
 
-The Power BI dashboard is divided into two complementary analytical panels.
+The dashboard is designed to answer the same core questions addressed in the SQL project:
 
-### 1. Overview
+* Are inspections distributed proportionally across NYC areas?
+* Do inspection outcomes differ structurally between boroughs?
+* How do inspection scores evolve over time?
+* Where are critical hygiene violations concentrated?
+* Do establishments improve, or do poor outcomes persist?
 
-Provides a snapshot of the inspection system through:
-
-* Total number of inspections
-* Average inspection score
-* Critical inspection rate
-* Best and worst cuisine rankings
-* Most recurring violation codes
-
-This panel supports fast comparative analysis across boroughs and cuisine types.
-
-### 2. Time analysis
-
-Focuses on medium-term dynamics using **3-year rolling metrics**:
-
-* Inspection count (3Y rolling)
-* Average inspection score (3Y rolling)
-* Critical inspection rate (3Y rolling)
-
-Rolling windows are used to reduce annual volatility while preserving sensitivity to structural change.
+All insights are derived from **aggregated and normalized metrics**, never from
+raw inspection rows.
 
 ---
 
-## Key findings
+## Dataset & Lineage
 
-* Inspection quality is broadly stable over time, with persistent territorial differences
-* Critical violations are widespread but show gradual improvement in recent years
-* Some cuisine categories consistently exhibit higher operational risk
-* Increased inspection activity after 2021 aligns with post-pandemic recovery patterns
+**Source:** NYC DOHMH – Restaurant Inspection Results
 
-These findings are descriptive and exploratory: no causal assumptions are made.
+**Original grain:** inspection × violation
 
----
+The raw dataset presents:
 
-## Design principles
+* duplicated inspection scores across violations
+* mixed analytical grains
+* no reliable inspection identifier
 
-* Inspection scores are aggregated only at the true inspection level
-* Violation-based metrics operate at row level
-* No score duplication bias is allowed in KPIs
-* Time trends use aggregated rolling windows, not averages of averages
-* The model prioritizes clarity, stability, and auditability
+To resolve these issues, the dataset is transformed using the same
+**ETL logic and modeling assumptions** adopted in the SQL project.
+
+> Power BI uses the **same clean, modeled dataset** generated for SQL analysis.
 
 ---
 
-## Tools and skills demonstrated
+## Data Model
 
-* Power Query (ETL design)
-* Power BI data modeling
-* Star schema modeling
-* Advanced DAX (granularity control, rolling windows)
-* Analytical documentation for portfolio presentation
+The Power BI data model follows a **star schema–based design**, fully aligned
+with the SQL dimensional model.
+
+<figure align="center">
+  <img src="star_schema.png" alt="Data model layout" width="700">
+  <figcaption>Data model layout</figcaption>
+</figure>
+
+### Model Characteristics
+
+* Central inspection fact table
+* Conformed dimensions
+* Explicit grain definition
+* No metrics stored in dimensions
+* No double counting when used correctly
 
 ---
 
-## Documentation structure
+## Tables Overview
 
-* `etl_power_query.md` – ETL logic and transformation rules
-* `data_model.md` – Conceptual and physical data model
-* `dax_measures.md` – Final DAX measures and methodology
-* `dashboard.md` – Dashboard structure and KPI interpretation
+### Fact Tables
 
-This project is intended as a **portfolio case study**, demonstrating an end-to-end analytical workflow from raw data to decision-ready insights.
+#### `fact_inspection`
+
+**Grain:** one row per restaurant-day with at least one inspection
+
+Used for:
+
+* inspection coverage analysis
+* average inspection scores
+* temporal trends
+* establishment-level performance tracking
+
+---
+
+#### `fact_inspection_violation`
+
+**Grain:** one row per (inspection, violation type)
+
+Used for:
+
+* critical violation analysis
+* violation frequency and concentration
+* compliance monitoring
+
+> This table is treated as a **dependent fact** and is always analyzed
+> through `fact_inspection`.
+
+---
+
+### Dimensions
+
+* `date_dim` – time analysis and trends
+* `area_dim` – geographic comparison (boroughs)
+* `establishment_dim` – restaurant-level analysis
+* `violation_dim` – violation classification
+
+---
+
+## Methodological Principles (Shared with SQL Project)
+
+* Inspections are approximated at **restaurant-day level**
+* Inspection scores are **unitary per inspection**
+* Violations are normalized to inspection–violation grain
+* All metrics are aggregated before analysis
+* Early years with sparse coverage are interpreted cautiously
+
+These principles ensure **analytical consistency across tools**.
+
+---
+
+## Dashboard Structure
+
+The Power BI report is organized into analytical sections:
+
+* **Overview KPIs**
+
+  * Total inspections
+  * Average inspection score
+  * Critical violation rate
+
+* **Geographic Analysis**
+
+  * Inspection coverage by borough
+  * Score distribution by area
+  * Critical violations concentration
+
+* **Temporal Analysis**
+
+  * Inspection volume over time
+  * Score trends
+  * Seasonality patterns
+
+* **Establishment Analysis**
+
+  * Repeat inspections
+  * Improvement vs persistence
+  * High-risk establishments
+
+---
+
+## Tooling & Technologies
+
+* **BI Tool:** Power BI
+* **Data Modeling:** Star schema
+* **Data Source:** PostgreSQL / CSV export
+* **Transformations:** Power Query (light), SQL (core logic)
+* **Version Control:** Git / GitHub
+
+---
+
+## Relationship with SQL Project
+
+This Power BI project is **not a separate analysis**, but a **visual extension**
+of the SQL analytical project.
+
+* Same dataset
+* Same ETL assumptions
+* Same dimensional model
+* Same analytical questions
+
+The SQL project serves as the **analytical foundation**;
+Power BI focuses on **exploration, storytelling, and insight communication**.
+
+---
+
+## Documentation
+
+* SQL analytical model → *SQL project repository*
+* ETL & assumptions → `etl.md`
+* Dimensional model → `data_model.md`
+* Power BI report → `.pbix` file
+
+---
+
+## Project Status
+
+* Data model finalized
+* Metrics validated against SQL queries
+* Dashboard aligned with analytical assumptions
+* Ready for portfolio and interviews
+
+---
