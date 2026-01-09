@@ -199,5 +199,8 @@ Power BI focuses on **exploration, comparison, and insight communication**.
 - Dashboard explanation  
   [`06_dashboard/dashboard.md`](06_dashboard/dashboard.md)
 
+- PowerBI file
+  [nyc_restaurant_inspection_PowerBI](/02_clean_data/nyc_restaurant_inspection_PowerBI.pbix)
+
 For the underlying analytical logic, see the companion project:  
 [`nyc_restaurant_inspections_sql`](../nyc_restaurant_inspections_sql)
