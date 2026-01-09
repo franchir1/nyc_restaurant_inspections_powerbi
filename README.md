@@ -194,7 +194,9 @@ Power BI focuses on **exploration, storytelling, and insight communication**.
 Supporting documentation and model components:
 
 - **Raw source data (CSV)**  
-  [`01_raw_data/`](01_raw_data/DOHMH_New_York_City_Restaurant_Inspection_Results_20260104.csv)
+  [`01_raw_data/`](01_raw_data/DOHMH_New_York_City_Restaurant_Inspection_Results_20260104_1k.csv)
+
+*Full dataset available [here](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/about_data)*
 
 - **Power Query ETL documentation**  
   [`03_power_query/power_query.md`](03_power_query/power_query.md)
