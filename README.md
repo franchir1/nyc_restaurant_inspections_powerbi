@@ -1,28 +1,28 @@
-# NYC Health Inspections – Analytical Dashboard (Power BI)
+# NYC Health Inspections — Analytical Dashboard (Power BI)
 
 ## Project Overview
 
 This project presents an **analytical Power BI dashboard** built on top of the
 **NYC Department of Health (DOHMH) restaurant inspection dataset**.
 
-It shares the **same dataset, assumptions, and analytical logic** of the SQL-based
-analytical project, and focuses on **visual exploration of system-level patterns**
-rather than isolated inspection events.
+It shares the **same dataset, assumptions, and analytical logic** as the SQL-based
+project and focuses on **visual exploration of system-level patterns** rather than
+individual inspection events.
 
-The goal is to translate a **grain-aware dimensional model** into an
-**interactive BI experience**.
+The objective is to translate a **grain-aware dimensional model** into an
+**interactive BI layer** while preserving analytical correctness.
 
 ---
 
-## Analytical Focus
+## Analytical Scope
 
-The dashboard is designed to answer the same core questions addressed in the SQL project:
+The dashboard addresses the same core analytical questions explored in the SQL project:
 
-* Are inspections distributed proportionally across NYC areas?
-* Do inspection outcomes differ structurally between boroughs?
-* How do inspection scores evolve over time?
-* Where are critical hygiene violations concentrated?
-* Do establishments improve, or do poor outcomes persist?
+- Are inspections distributed proportionally across NYC areas?
+- Do inspection outcomes differ structurally between boroughs?
+- How do inspection scores evolve over time?
+- Where are critical hygiene violations geographically concentrated?
+- Do establishments improve over time or show persistent underperformance?
 
 All insights are derived from **aggregated and normalized metrics**, never from
 raw inspection rows.
@@ -31,40 +31,36 @@ raw inspection rows.
 
 ## Dataset & Lineage
 
-**Source:** NYC DOHMH – Restaurant Inspection Results
-
+**Source:** NYC DOHMH — Restaurant Inspection Results  
 **Original grain:** inspection × violation
 
-The raw dataset presents:
+Key issues in the raw dataset:
 
-* duplicated inspection scores across violations
-* mixed analytical grains
-* no reliable inspection identifier
+- duplicated inspection scores across violations
+- mixed analytical grains
+- absence of a reliable inspection identifier
 
-To resolve these issues, the dataset is transformed using the same
-**ETL logic and modeling assumptions** adopted in the SQL project.
+These issues are resolved using the **same ETL logic and modeling assumptions**
+adopted in the SQL project.
 
-> Power BI uses the **same clean, modeled dataset** generated for SQL analysis.
+> Power BI consumes the **clean, modeled dataset** produced for SQL analysis.
 
 ---
 
 ## Data Model
 
-The Power BI data model follows a **star schema–based design**, fully aligned
-with the SQL dimensional model.
+The Power BI data model follows a **star schema–based design**, fully aligned with
+the SQL dimensional model.
 
-<figure align="center">
-  <img src="star_schema.png" alt="Data model layout" width="700">
-  <figcaption>Data model layout</figcaption>
-</figure>
+*(diagram unchanged)*
 
 ### Model Characteristics
 
-* Central inspection fact table
-* Conformed dimensions
-* Explicit grain definition
-* No metrics stored in dimensions
-* No double counting when used correctly
+- central inspection fact table
+- conformed dimensions
+- explicit grain definition
+- no metrics stored in dimensions
+- no double counting when used correctly
 
 ---
 
@@ -77,11 +73,10 @@ with the SQL dimensional model.
 **Grain:** one row per restaurant-day with at least one inspection
 
 Used for:
-
-* inspection coverage analysis
-* average inspection scores
-* temporal trends
-* establishment-level performance tracking
+- inspection coverage analysis
+- average inspection score analysis
+- temporal trend analysis
+- establishment-level performance tracking
 
 ---
 
@@ -90,10 +85,9 @@ Used for:
 **Grain:** one row per (inspection, violation type)
 
 Used for:
-
-* critical violation analysis
-* violation frequency and concentration
-* compliance monitoring
+- critical violation analysis
+- violation frequency and concentration
+- compliance pattern monitoring
 
 > This table is treated as a **dependent fact** and is always analyzed
 > through `fact_inspection`.
@@ -102,22 +96,24 @@ Used for:
 
 ### Dimensions
 
-* `date_dim` – time analysis and trends
-* `area_dim` – geographic comparison (boroughs)
-* `establishment_dim` – restaurant-level analysis
-* `violation_dim` – violation classification
+- `date_dim` — time-based analysis and trends
+- `area_dim` — geographic comparison (boroughs)
+- `establishment_dim` — restaurant-level analysis
+- `violation_dim` — violation classification
 
 ---
 
-## Methodological Principles (Shared with SQL Project)
+## Methodological Principles
 
-* Inspections are approximated at **restaurant-day level**
-* Inspection scores are **unitary per inspection**
-* Violations are normalized to inspection–violation grain
-* All metrics are aggregated before analysis
-* Early years with sparse coverage are interpreted cautiously
+The dashboard adheres to the same analytical constraints as the SQL project:
 
-These principles ensure **analytical consistency across tools**.
+- inspections approximated at **restaurant-day level**
+- inspection scores treated as **unitary per inspection**
+- violations normalized to inspection–violation grain
+- metrics aggregated prior to analysis
+- early years with sparse coverage interpreted cautiously
+
+This ensures **analytical consistency across tools**.
 
 ---
 
@@ -125,52 +121,49 @@ These principles ensure **analytical consistency across tools**.
 
 The Power BI report is organized into analytical sections:
 
-* **Overview KPIs**
+### Overview KPIs
+- total inspections
+- average inspection score
+- critical violation rate
 
-  * Total inspections
-  * Average inspection score
-  * Critical violation rate
+### Geographic Analysis
+- inspection coverage by borough
+- score distribution by area
+- concentration of critical violations
 
-* **Geographic Analysis**
+### Temporal Analysis
+- inspection volume over time
+- score trends
+- seasonality patterns
 
-  * Inspection coverage by borough
-  * Score distribution by area
-  * Critical violations concentration
-
-* **Temporal Analysis**
-
-  * Inspection volume over time
-  * Score trends
-  * Seasonality patterns
-
-* **Establishment Analysis**
-
-  * Repeat inspections
-  * Improvement vs persistence
-  * High-risk establishments
+### Establishment Analysis
+- repeat inspections
+- improvement vs persistence
+- identification of higher-risk establishments
 
 ---
 
-## Key Findings (High-level)
+## High-Level Findings
 
 The analysis highlights the following system-level patterns:
 
-- Inspection coverage is broadly proportional across NYC areas.
-- Structural differences exist in inspection outcomes between boroughs.
-- Inspection scores show stable medium-term dynamics.
-- Critical inspection risk is widespread but shows signs of decline in recent years.
+- inspection coverage is broadly proportional across NYC areas
+- structural differences exist in inspection outcomes between boroughs
+- inspection scores exhibit stable medium-term dynamics
+- critical inspection risk is widespread but shows signs of decline in recent years
 
-All findings are derived from aggregated and normalized metrics and
-should be interpreted at system level rather than at individual establishment level.
+All findings are based on **aggregated, normalized metrics** and should be
+interpreted at **system level**, not at individual establishment level.
 
+---
 
-## Tooling & Technologies
+## Tools & Technologies
 
-* **BI Tool:** Power BI
-* **Data Modeling:** Star schema
-* **Data Source:** PostgreSQL / CSV export
-* **Transformations:** Power Query (light), SQL (core logic)
-* **Version Control:** Git / GitHub
+- **BI Tool:** Power BI
+- **Data Modeling:** Star schema
+- **Data Source:** PostgreSQL / CSV export
+- **Transformations:** Power Query (light), SQL (core logic)
+- **Version Control:** Git / GitHub
 
 ---
 
@@ -179,37 +172,32 @@ should be interpreted at system level rather than at individual establishment le
 This Power BI project is **not a separate analysis**, but a **visual extension**
 of the SQL analytical project.
 
-* Same dataset
-* Same ETL assumptions
-* Same dimensional model
-* Same analytical questions
+- same dataset
+- same ETL assumptions
+- same dimensional model
+- same analytical questions
 
-The SQL project serves as the **analytical foundation**;
-Power BI focuses on **exploration, storytelling, and insight communication**.
+The SQL project provides the **analytical foundation**;  
+Power BI focuses on **exploration, comparison, and insight communication**.
 
 ---
 
-## Further Documentation & Deep Dives
+## Documentation & Deep Dives
 
-Supporting documentation and model components:
-
-- **Raw source data (CSV)**  
+- Raw source data  
   [`01_raw_data/`](01_raw_data/DOHMH_New_York_City_Restaurant_Inspection_Results_20260104_1k.csv)
-Full dataset available [here](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/about_data)
 
-- **Power Query ETL documentation**  
+- Power Query documentation  
   [`03_power_query/power_query.md`](03_power_query/power_query.md)
 
-- **Analytical data model documentation**  
+- Data model documentation  
   [`04_data_model/data_model.md`](04_data_model/data_model.md)
 
-- **DAX measures documentation**  
+- DAX measures  
   [`05_dax/dax.md`](05_dax/dax.md)
 
-- **Dashboard explanation**  
+- Dashboard explanation  
   [`06_dashboard/dashboard.md`](06_dashboard/dashboard.md)
 
-For the underlying analytical logic and SQL implementation,
-see the **SQL companion project**:  
+For the underlying analytical logic, see the companion project:  
 [`nyc_restaurant_inspections_sql`](../nyc_restaurant_inspections_sql)
-
